@@ -1,7 +1,9 @@
+// Main.qml
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Controls.Material
 import QtQuick.Layouts
+
 
 ApplicationWindow {
     id: mainWindow
@@ -14,31 +16,33 @@ ApplicationWindow {
     Material.accent: Material.Blue
 
     // Цвета:
-    // бэкграунд: #2b2b2b
-    // основа: #3c90a4
-    // контрастная основа: #255a66
-    // серый мовитон: #3e4556
-    // допуск: #3fee85
+    readonly property color mainLightColor: "#3c90a4"
+    readonly property color mainDarkColor: "#255a66"
+    readonly property color onlineColor: "#3fee85"
+    readonly property color offlineColor: "#e95349"
+    readonly property color menuBgColor: "#2b2b2b"
+    readonly property color greyColor: "#3e4556"
+    readonly property color versionColor: "#757575"
+
 
     // Заголовочная часть с кнопкой подключения к серверу
     header: ToolBar {
         id: header
         height: 60
-        Material.background: "#3c90a4"
+        Material.background: mainDarkColor
 
         RowLayout {
             anchors.fill: parent
             //anchors.margins: 20
             anchors.leftMargin: 5
             anchors.rightMargin: 10
-            spacing: 10
+            spacing: 5
 
             // TODO: Стоит взять образец оформления бокового меню из stepwise-regression
-            // и икноки кнопок тоже
             Button {
                 id: menuButton
-                text: "☰"
-                font.pixelSize: 24
+                icon.source: "qrc:/icons/white/align-justify.svg"
+                font.pixelSize: 30
                 flat: true
                 onClicked: {
                     if (drawer.visible) {
@@ -60,15 +64,26 @@ ApplicationWindow {
             }
 
             Text {
-                text: "online"
+                id: connectionTxt
+                text: connectionBtn.isConnected ? "online" : "offline"
+                // text: "online"
                 font.pixelSize: 15
                 font.bold: true
-                color: '#3fee85'
+                color: connectionBtn.isConnected ? onlineColor : offlineColor
                 Layout.alignment: Qt.AlignRight
             }
 
             Button {
-                text: '[OFF]'
+                id: connectionBtn
+                property bool isConnected: false
+                icon.source: isConnected ? "qrc:/icons/white/toggle-right.svg" : "qrc:/icons/white/toggle-left.svg"
+                // icon.source: "qrc:/icons/white/toggle-left.svg"
+                icon.width: 30
+                icon.height: 30
+                onClicked: {
+                    isConnected = !isConnected
+                }
+                //text: '[OFF]'
                 flat: true
                 ToolTip.text: "Отключиться"
                 ToolTip.visible: hovered
@@ -90,29 +105,38 @@ ApplicationWindow {
             spacing: 8
 
             Image {
-                source: "file:/home/vimero/Projects/pgw-scada/icons/logo.svg"
-                width: 140
-                height: 60
-                Layout.alignment: Qt.AlignHCenter
+                source: "qrc:/logo/small.svg"
+                //width: 50
+                //height: 60
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
                 Layout.bottomMargin: 20
-                fillMode: Image.PreserveAspectFit
+                //fillMode: Image.PreserveAspectFit
             }
 
-            // NavButton {
-            //     text: "Обзор"
-            //     //onClicked: stackView.replace(какая-то страничка)
-            //     //drawer.close()
-            // }
+            ItemDelegate { text: "Обзор";           width: parent.width; Layout.fillWidth: true; onClicked: stackView.replace(dashboardPage)}
+            ItemDelegate { text: "Активные сессии"; width: parent.width; Layout.fillWidth: true; onClicked: stackView.replace(dashboardPage)}
+            ItemDelegate { text: "Журнал CDR";      width: parent.width; Layout.fillWidth: true; onClicked: stackView.replace(dashboardPage)}
+            ItemDelegate { text: "Управление";      width: parent.width; Layout.fillWidth: true; onClicked: stackView.replace(dashboardPage)}
+            ItemDelegate { text: "Настройки";       width: parent.width; Layout.fillWidth: true; onClicked: stackView.replace(dashboardPage)}
 
+            // Заполнитель пустоты
             Item { Layout.fillHeight: true }
 
             Text {
                 text: "v1.0.0"
-                color: "#757575"
+                color: versionColor
                 font.pixelSize: 10
                 Layout.alignment: Qt.AlignHCenter
             }
         }
 
+    }
+
+    StackView {
+        id: stackView
+        anchors.fill: parent
+        initialItem: DashboardPage {
+            id: dashboardPage
+        }
     }
 }
