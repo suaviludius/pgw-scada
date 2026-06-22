@@ -8,8 +8,13 @@ find_package(Qt6 6.8 REQUIRED COMPONENTS Quick)
 
 qt_standard_project_setup(REQUIRES 6.8)
 
+qt6_add_resources(appmain_RESOURCES
+    resources/resources.qrc
+)
+
 qt_add_executable(appmain
     main.cpp
+    ${appmain_RESOURCES}
 )
 
 qt_add_qml_module(appmain
@@ -17,6 +22,8 @@ qt_add_qml_module(appmain
     VERSION 1.0
     QML_FILES
         Main.qml
+        DashboardPage.qml
+        MetricCard.qml
 )
 
 set_target_properties(appmain PROPERTIES
