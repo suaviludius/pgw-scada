@@ -1,6 +1,5 @@
 // MetricCard.qml
 import QtQuick
-import QtQuick.Controls
 import QtQuick.Layouts
 
 Rectangle{
@@ -8,6 +7,7 @@ Rectangle{
     height: 120
     color: greyColor
     radius: 8
+    Layout.fillWidth: true
 
     property string title: "Метрика"
     property string icon: 'qrc:/icons/white/clipboard.svg'
