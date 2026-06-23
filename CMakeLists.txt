@@ -21,9 +21,9 @@ qt_add_qml_module(appmain
     URI main
     VERSION 1.0
     QML_FILES
-        Main.qml
-        DashboardPage.qml
-        MetricCard.qml
+        qml/Main.qml
+        qml/DashboardPage.qml
+        qml/MetricCard.qml
 )
 
 set_target_properties(appmain PROPERTIES
