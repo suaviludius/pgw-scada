@@ -4,16 +4,17 @@ project(main VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 6.8 REQUIRED COMPONENTS Quick)
+find_package(Qt6 6.11 REQUIRED COMPONENTS Quick Graphs)
 
-qt_standard_project_setup(REQUIRES 6.8)
+qt_standard_project_setup(REQUIRES 6.11)
 
 qt6_add_resources(appmain_RESOURCES
-    resources/resources.qrc
+    qml/resources/resources.qrc
 )
 
 qt_add_executable(appmain
     main.cpp
+    PgwBackend.cpp
     ${appmain_RESOURCES}
 )
 
@@ -24,6 +25,7 @@ qt_add_qml_module(appmain
         qml/Main.qml
         qml/DashboardPage.qml
         qml/MetricCard.qml
+        qml/InfoRow.qml
 )
 
 set_target_properties(appmain PROPERTIES
@@ -34,7 +36,7 @@ set_target_properties(appmain PROPERTIES
 )
 
 target_link_libraries(appmain
-    PRIVATE Qt6::Quick
+    PRIVATE Qt6::Quick Qt6::Graphs
 )
 
 include(GNUInstallDirs)

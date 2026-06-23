@@ -7,8 +7,8 @@ import QtQuick.Layouts
 
 ApplicationWindow {
     id: mainWindow
-    width: 1200
-    height: 720
+    width: 1100
+    height: 780
     visible: true
     title: "PGW MONITORING SYSTEM"
 
@@ -24,6 +24,14 @@ ApplicationWindow {
     readonly property color greyColor: "#3e4556"
     readonly property color versionColor: "#757575"
 
+    // Подключение к бекенду
+    Connections {
+        target: backend
+        function onStatsUpdated(stats) {
+            dashboardPage.activeSessions = stats.activeSessions
+            // сюда пихаем всё, что надо читать
+        }
+    }
 
     // Заголовочная часть с кнопкой подключения к серверу
     header: ToolBar {
@@ -104,6 +112,7 @@ ApplicationWindow {
             anchors.margins: 15
             spacing: 8
 
+            // Логотип меню
             Image {
                 source: "qrc:/logo/small.svg"
                 //width: 50
@@ -113,11 +122,11 @@ ApplicationWindow {
                 //fillMode: Image.PreserveAspectFit
             }
 
-            ItemDelegate { text: "Обзор";           width: parent.width; Layout.fillWidth: true; onClicked: stackView.replace(dashboardPage)}
-            ItemDelegate { text: "Активные сессии"; width: parent.width; Layout.fillWidth: true; onClicked: stackView.replace(dashboardPage)}
-            ItemDelegate { text: "Журнал CDR";      width: parent.width; Layout.fillWidth: true; onClicked: stackView.replace(dashboardPage)}
-            ItemDelegate { text: "Управление";      width: parent.width; Layout.fillWidth: true; onClicked: stackView.replace(dashboardPage)}
-            ItemDelegate { text: "Настройки";       width: parent.width; Layout.fillWidth: true; onClicked: stackView.replace(dashboardPage)}
+            ItemDelegate { text: "Обзор";           width: parent.width; Layout.fillWidth: true; onClicked: stackView.replace(dashboardPage),drawer.close()}
+            ItemDelegate { text: "Активные сессии"; width: parent.width; Layout.fillWidth: true; onClicked: stackView.replace(dashboardPage),drawer.close()}
+            ItemDelegate { text: "Журнал CDR";      width: parent.width; Layout.fillWidth: true; onClicked: stackView.replace(dashboardPage),drawer.close()}
+            ItemDelegate { text: "Управление";      width: parent.width; Layout.fillWidth: true; onClicked: stackView.replace(dashboardPage),drawer.close()}
+            ItemDelegate { text: "Настройки";       width: parent.width; Layout.fillWidth: true; onClicked: stackView.replace(dashboardPage),drawer.close()}
 
             // Заполнитель пустоты
             Item { Layout.fillHeight: true }
@@ -132,6 +141,7 @@ ApplicationWindow {
 
     }
 
+    // Стэк страниц (пока что сделаем одну, дальше будем думать)
     StackView {
         id: stackView
         anchors.fill: parent
