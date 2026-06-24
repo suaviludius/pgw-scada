@@ -124,6 +124,7 @@ Page {
             Rectangle{
                 Layout.fillWidth: true
                 //Layout.fillHeight: true
+                Layout.preferredWidth: 200
                 Layout.preferredHeight: 250
                 color: greyColor
                 radius: 8
@@ -182,6 +183,7 @@ Page {
             // Информация о сервере
             Rectangle {
                 Layout.fillWidth: true
+                Layout.preferredWidth: 100
                 Layout.preferredHeight: 250
                 color: greyColor
                 radius: 8
@@ -198,16 +200,16 @@ Page {
                         color: "#E6E6E6"
                     }
 
-                    InfoRow { label: "Версия:"; value: "v1.2.0" }
-                    InfoRow { label: "Uptime:"; value: "3д 14ч 22м" }
+                    InfoRow { label: "Версия:\t"; value: "v1.2.0" }
+                    InfoRow { label: "Uptime:\t"; value: "3д 14ч 22м" }
                     InfoRow {
-                        label: "БД статус:"
+                        label: "БД статус:\t"
                         value: backend.dbConnected ? "Connected" : "Disconnected"
                         valueColor: backend.dbConnected ? onlineColor : offlineColor
                     }
-                    InfoRow { label: "TCP порт:"; value: "9090" }
-                    InfoRow { label: "UDP порт:"; value: "9000" }
-                    InfoRow { label: "HTTP порт:"; value: "8080" }
+                    InfoRow { label: "TCP порт:\t"; value: "9090" }
+                    InfoRow { label: "UDP порт:\t"; value: "9000" }
+                    InfoRow { label: "HTTP порт:\t"; value: "8080" }
                 }
             }
         }
