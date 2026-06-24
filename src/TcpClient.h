@@ -8,20 +8,39 @@
 
 class TcpClient : public QObject {
     Q_OBJECT
-    Q_PROPERTY(bool isConnected READ isConnected) //NOTIFY connectedChanged)
+    // Свойство, создает NOTIFY при вызове сигнала connectedChanged
+    Q_PROPERTY(bool isConnected READ isConnected NOTIFY connectedChanged)
 
 public:
     explicit TcpClient(QObject* parent = nullptr);
     ~TcpClient() override;
 
-    // Проверка подключения к серверу
-    bool isConnected() const { return false; }
+    // QML методы
+    // Подключение к TCP серверу
+    Q_INVOKABLE bool connectToServer(const QString& host, quint16 port);
+    // Отключение от TCP сервера
+    Q_INVOKABLE void disconnectFromServer();
+
+    // Проверка подключения к TCP серверу
+    bool isConnected() const { return (m_socket.state() == QAbstractSocket::ConnectedState); }
 
 signals:
-// Все сигналы проперти нужно объявить здесь
+    // Сигнал изменения подключения к TcpServer
+    void connectedChanged();
+
 private slots:
+    // Слот подключения с генерацией connectedChanged
+    void onConnected();
+    // Слот отключения с генерацией connectedChanged
+    void onDisconnected();
 
 private:
+    // Соккет для подключения к TCP серверу
+    QTcpSocket m_socket;
+    // Подключение по хостнейму
+    QString m_host;
+    // Порт подключения к TCP серверу
+    quint16 m_port;
 
 };
 
