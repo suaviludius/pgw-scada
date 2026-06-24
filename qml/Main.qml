@@ -25,13 +25,13 @@ ApplicationWindow {
     readonly property color versionColor: "#757575"
 
     // Подключение к бекенду
-    Connections {
-        target: backend
-        function onStatsUpdated(stats) {
-            dashboardPage.activeSessions = stats.activeSessions
-            // сюда пихаем всё, что надо читать
-        }
-    }
+    // Connections {
+    //     target: backend
+    //     function onStatsUpdated(stats) {
+    //         dashboardPage.activeSessions = stats.activeSessions
+    //         // сюда пихаем всё, что надо читать
+    //     }
+    // }
 
     // Заголовочная часть с кнопкой подключения к серверу
     header: ToolBar {
@@ -73,27 +73,31 @@ ApplicationWindow {
 
             Text {
                 id: connectionTxt
-                text: connectionBtn.isConnected ? "online" : "offline"
+                text: backend.isConnected ? "online" : "offline"
+                color: backend.isConnected ? onlineColor : offlineColor
                 // text: "online"
                 font.pixelSize: 15
                 font.bold: true
-                color: connectionBtn.isConnected ? onlineColor : offlineColor
                 Layout.alignment: Qt.AlignRight
             }
 
             Button {
                 id: connectionBtn
-                property bool isConnected: false
-                icon.source: isConnected ? "qrc:/icons/white/toggle-right.svg" : "qrc:/icons/white/toggle-left.svg"
+                icon.source: backend.isConnected ? "qrc:/icons/white/toggle-right.svg" : "qrc:/icons/white/toggle-left.svg"
                 // icon.source: "qrc:/icons/white/toggle-left.svg"
                 icon.width: 30
                 icon.height: 30
                 onClicked: {
-                    isConnected = !isConnected
+                    if(!backend.isConnected) {
+                        backend.connectToServer("127.0.0.1", 9090)
+                    }
+                    else{
+                        backend.disconnectFromServer()
+                    }
                 }
                 //text: '[OFF]'
                 flat: true
-                ToolTip.text: "Отключиться"
+                ToolTip.text: backend.isConnected ? "Отключиться" : "Подключиться"
                 ToolTip.visible: hovered
             }
         }
