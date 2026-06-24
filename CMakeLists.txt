@@ -4,7 +4,7 @@ project(main VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 6.11 REQUIRED COMPONENTS Quick Graphs)
+find_package(Qt6 6.11 REQUIRED COMPONENTS Quick Graphs Network)
 
 qt_standard_project_setup(REQUIRES 6.11)
 
@@ -13,8 +13,9 @@ qt6_add_resources(appmain_RESOURCES
 )
 
 qt_add_executable(appmain
-    main.cpp
-    PgwBackend.cpp
+    src/main.cpp
+    src/PgwBackend.cpp
+    src/TcpClient.cpp
     ${appmain_RESOURCES}
 )
 

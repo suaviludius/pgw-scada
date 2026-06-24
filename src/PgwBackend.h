@@ -14,7 +14,7 @@ public:
     ~PgwBackend() override;
 
     // Проверка подключения к серверу
-    bool isConnected() const { return true; }
+    bool isConnected() const { return false; }
 
 signals:
 // Все сигналы проперти нужно объявить здесь
