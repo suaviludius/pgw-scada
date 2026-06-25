@@ -21,18 +21,27 @@ public:
     // Отключение от TCP сервера
     Q_INVOKABLE void disconnectFromServer();
 
+    // Геттеры для Q_PROPERTY
     // Проверка подключения к TCP серверу
     bool isConnected() const { return (m_socket.state() == QAbstractSocket::ConnectedState); }
+
+    // Обычные методы
+    // Передача данных серверу
+    void sendData(const QByteArray& data);
 
 signals:
     // Сигнал изменения подключения к TcpServer
     void connectedChanged();
+    // Сигнал при получении данных (читаются все данные с сокета и передаются)
+    void dataRecieved(QByteArray& data);
 
 private slots:
     // Слот подключения с генерацией connectedChanged
     void onConnected();
     // Слот отключения с генерацией connectedChanged
     void onDisconnected();
+    // Слот разрешения чтения данных TCP сокета
+    void onReadyRead();
 
 private:
     // Соккет для подключения к TCP серверу
@@ -41,6 +50,8 @@ private:
     QString m_host;
     // Порт подключения к TCP серверу
     quint16 m_port;
+    // Буффер чтения данных с сокета
+    QByteArray m_readBuffer;
 
 };
 
