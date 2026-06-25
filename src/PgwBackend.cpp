@@ -1,11 +1,19 @@
 // PgwBackend.cpp
 #include "PgwBackend.h"
 
+#include "TcpSerializer.h"
+
 PgwBackend::PgwBackend(QObject* parent)
     : QObject(parent)
 {
-    // Подключаем к TcpClient сигналы к слотам PgwBackend
+    // Подключаем к сигналы к слотам
     connect(&m_tcpClient, &TcpClient::connectedChanged, this, &PgwBackend::connectedChanged);
+    connect(&m_tcpClient, &TcpClient::dataRecieved, this, &PgwBackend::onDataReceived);
+}
+
+PgwBackend::~PgwBackend()
+{
+    // Очистка
 }
 
 bool PgwBackend::connectToServer(const QString& host, quint16 port){
@@ -17,7 +25,80 @@ void PgwBackend::disconnectFromServer() {
     m_tcpClient.disconnectFromServer();
 }
 
-PgwBackend::~PgwBackend()
-{
-    // Очистка
+void PgwBackend::requestStatistics() {
+    sendRequest(pgw::protocol::Command::GET_STATS);
+}
+void PgwBackend::requestSessions() {
+    sendRequest(pgw::protocol::Command::GET_SESSIONS);
+}
+
+void PgwBackend::requestStartSession(const QString& imsi) {
+    QJsonObject data;
+    data["imsi"] = imsi;
+    sendRequest(pgw::protocol::Command::START_SESSION, data);
+}
+
+void PgwBackend::requestStopSession(const QString& imsi) {
+    QJsonObject data;
+    data["imsi"] = imsi;
+    sendRequest(pgw::protocol::Command::STOP_SESSION, data);
+}
+void PgwBackend::requestShutdown(){
+    sendRequest(pgw::protocol::Command::SHUTDOWN);
+}
+
+
+void PgwBackend::responseStatistics(const QJsonObject& data){
+    m_activeSessions = data["active_sessions"].toInt(0);
+    m_createdSessions = data["created_sessions"].toInt(0);
+    m_expiredSessions = data["expired_sessions"].toInt(0);
+    m_rejectedSessions = data["rejected_sessions"].toInt(0);
+    m_totalSessions = data["total_sessions"].toInt(0);
+    m_uptimeSeconds = data["uptime_seconds"].toInt(0);
+    emit statsChanged();
+}
+
+
+void PgwBackend::sendRequest(pgw::protocol::Command cmd, const QJsonObject& params){
+    auto msg = pgw::TcpSerializer::createJsonMsg(cmd, pgw::protocol::Status::OK, params);
+    auto data = pgw::TcpSerializer::serializer(msg);
+    m_tcpClient.sendData(data);
+}
+
+void PgwBackend::msgHandler(const pgw::protocol::Message &msg){
+    if (msg.header.status != pgw::protocol::Status::OK){
+        qWarning() << "Command status error";
+        return;
+    }
+    switch(msg.header.command){
+        case pgw::protocol::Command::GET_STATS:
+            qDebug() << "FSAFASF";
+            responseStatistics(pgw::TcpSerializer::getJsonData(msg));
+            break;
+        // case pgw::protocol::Command::GET_SESSIONS:
+        // case pgw::protocol::Command::GET_CDR:
+        // case pgw::protocol::Command::START_SESSION:
+        // case pgw::protocol::Command::STOP_SESSION:
+        // case pgw::protocol::Command::SHUTDOWN:
+        default: break;
+    }
+}
+
+void PgwBackend::readResponse(QByteArray &buffer){
+    // Циклично ищем, передаем и удаляем сообщения из буффера
+    while(true){
+        // Сериализуем данные сообщения
+        auto msg = pgw::TcpSerializer::deserializer(buffer);
+        if (!msg.has_value()) {
+            break;  // Недостаточно данных
+        }
+        // Удаляем сообщение из буффера
+        buffer.remove(0, msg->totalSize());
+        // Передаем сигнал обработчику сообщений
+        msgHandler(*msg);
+    }
+}
+
+void PgwBackend::onDataReceived(QByteArray& data){
+    readResponse(data);
 }
