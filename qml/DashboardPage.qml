@@ -24,25 +24,25 @@ Page {
             MetricCard {
                 icon: "qrc:/icons/white/users.svg"
                 title: "Активные сессии"
-                value: 11
+                value: backend.activeSessions
             }
 
             MetricCard {
                 icon: "qrc:/icons/white/trello.svg"
                 title: "Сессий сегодня"
-                value: 22
+                value: backend.totalSessions
             }
 
             MetricCard {
                 icon: "qrc:/icons/white/alert-octagon.svg"
                 title: "Отклоненные"
-                value: 33
+                value: backend.rejectedSessions
             }
 
             MetricCard {
                 icon: "qrc:/icons/white/activity.svg"
-                title: "Нагрузка"
-                value: 44
+                title: "Просроченные"
+                value: backend.expiredSessions
             }
         }
 
@@ -201,7 +201,7 @@ Page {
                     }
 
                     InfoRow { label: "Версия:\t"; value: "v1.2.0" }
-                    InfoRow { label: "Uptime:\t"; value: "3д 14ч 22м" }
+                    InfoRow { label: "Uptime:\t"; value: backend.uptimeSeconds + " cекунд" } // TODO: нужно сделать формат: "3д 14ч 22м"
                     InfoRow {
                         label: "БД статус:\t"
                         value: backend.dbConnected ? "Connected" : "Disconnected"
@@ -218,7 +218,7 @@ Page {
         interval: 5000
         running: true
         repeat: true
-        onTriggered: backend.requestStats()
+        onTriggered: backend.requestStatistics()
     }
 }
 
