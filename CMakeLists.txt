@@ -16,6 +16,7 @@ qt_add_executable(appmain
     src/main.cpp
     src/PgwBackend.cpp
     src/TcpClient.cpp
+    src/TcpSerializer.cpp
     ${appmain_RESOURCES}
 )
 
