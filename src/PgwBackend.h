@@ -8,7 +8,15 @@
 
 #include <QObject>
 #include <QJsonObject>
+#include <QJsonArray>
 
+struct CdrRecord {
+    QString timestamp;
+    QString imsi;
+    QString action;
+};
+// Создаем Qt Meta-Object (даст обращаться к структуре)
+Q_DECLARE_METATYPE(CdrRecord)
 
 class PgwBackend : public QObject {
     Q_OBJECT
@@ -21,6 +29,7 @@ class PgwBackend : public QObject {
     Q_PROPERTY(int rejectedSessions READ rejectedSessions NOTIFY statsChanged)
     Q_PROPERTY(int totalSessions READ totalSessions NOTIFY statsChanged)
     Q_PROPERTY(int uptimeSeconds READ uptimeSeconds NOTIFY statsChanged)
+    Q_PROPERTY(QVariantList recentCdr READ recentCdr NOTIFY cdrChanged)
 
 public:
     explicit PgwBackend(QObject* parent = nullptr);
@@ -34,7 +43,7 @@ public:
     // Запрос серверу
     Q_INVOKABLE void requestStatistics();
     Q_INVOKABLE void requestSessions();
-    // void requestCDR();
+    Q_INVOKABLE void requestCdr();
     Q_INVOKABLE void requestStartSession(const QString& sessionId);
     Q_INVOKABLE void requestStopSession(const QString& sessionId);
     Q_INVOKABLE void requestShutdown();
@@ -49,6 +58,9 @@ public:
     int rejectedSessions() const { return m_rejectedSessions; }
     int totalSessions() const { return m_totalSessions; }
     int uptimeSeconds() const { return m_uptimeSeconds; }
+    // Записи CDR
+    //QList<CdrRecord>recentCdr() const { return m_recentCdr;}
+    QVariantList recentCdr() const { return m_recentCdr;}
 
     // Простые публичные методы
     // void handleResponse();
@@ -59,6 +71,8 @@ signals:
     void connectedChanged();
     // Сигнал для обновления свойств статистики
     void statsChanged();
+    // Сигнал для обновления таблицы CDR записей
+    void cdrChanged();
 
 private slots:
     // Слот получении данных (принимаются все данные с сокета)
@@ -74,6 +88,9 @@ private:
     int m_rejectedSessions = 0;
     int m_totalSessions = 0;
     int m_uptimeSeconds = 0;
+    // Список CDR записей
+    //QList<CdrRecord> m_recentCdr;
+    QVariantList m_recentCdr;
 
     void sendRequest(pgw::protocol::Command cmd, const QJsonObject& params = QJsonObject());
     void readResponse(QByteArray &buffer);
@@ -81,6 +98,7 @@ private:
 
     // Обработчики ответов сервера
     void responseStatistics(const QJsonObject& data);
+    void responseCdr(const QJsonObject& data);
 };
 
 #endif // PGW_BACKEND_H
