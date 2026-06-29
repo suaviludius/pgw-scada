@@ -132,6 +132,7 @@ Page {
                 ColumnLayout {
                     anchors.fill: parent
                     anchors.margins: 16
+
                     Text{
                         text: "Последние CDR записи"
                         font.bold: true
@@ -139,39 +140,81 @@ Page {
                         color: "#E6E6E6"
                     }
 
-                    // Таблица CDR записей 
+                    Rectangle {
+                        Layout.fillWidth: true
+                        height: 25
+                        color: "#2a3a4a"
+                        radius: 2
+
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.margins: 8
+
+                            Text {
+                                text: "Timestamp"
+                                font.pixelSize: 11
+                                font.bold: true
+                                color: versionColor
+                                Layout.preferredWidth: 200
+                            }
+                            Text {
+                                text: "IMSI"
+                                font.pixelSize: 11
+                                font.bold: true
+                                color: versionColor
+                                Layout.preferredWidth: 200
+                            }
+                            Text {
+                                text: "Action"
+                                font.pixelSize: 11
+                                font.bold: true
+                                color: versionColor
+                                Layout.preferredWidth: 200
+                            }
+                        }
+                    }
+
+                    // Таблица CDR записей
                     ListView{
                         Layout.fillWidth: true
                         Layout.fillHeight: true
+                        Layout.preferredHeight: 180
+                        // Обрезаем всё, что выходит за границы
+                        // (без него при прокрутке вылезает за рамки ListView)
+                        clip: true
                         model: backend.recentCdr
 
                         delegate: Rectangle {
                             width: parent.width
                             height: 30
-                            color: "#F8F8F8"
-                            // Можно попробовать так, но пока визульно - загадка
-                            //color: index % 2 === 0 ? "#F8F8F8" : "transparent"
+                            // Все чередуют цвета, и мы будем!
+                            color: index % 2 === 0 ? greyColor : mainDarkColor
 
                             RowLayout {
                                 anchors.fill: parent
+                                anchors.margins: 8
 
                                 Text {
-                                    text: model.timestamp
-                                    font.pixelSize: 11
-                                    Layout.preferredWidth: 70
+                                    text: modelData.timestamp
+                                    font.pixelSize: 14
+                                    Layout.preferredWidth: 200
+                                    color: "#E6E6E6"
                                 }
 
                                 Text {
-                                    text: model.imsi
-                                    font.pixelSize: 11
-                                    Layout.preferredWidth: 100
+                                    text: modelData.imsi
+                                    font.pixelSize: 14
+                                    Layout.preferredWidth: 200
+                                    color: "#E6E6E6"
                                 }
 
                                 Text {
-                                    text: model.action
-                                    font.pixelSize: 11
-                                    color: model.action === "created" ? successColor :
-                                           model.action === "rejected" ? errorColor : warningColor
+                                    text: modelData.action
+                                    font.bold: true
+                                    font.pixelSize: 14
+                                    Layout.preferredWidth: 200
+                                    // color: "#E6E6E6"
+                                    color: modelData.action === "CREATED" ? onlineColor : offlineColor
                                 }
                             }
 
@@ -218,7 +261,7 @@ Page {
         interval: 5000
         running: true
         repeat: true
-        onTriggered: backend.requestStatistics()
+        onTriggered: backend.requestStatistics(), backend.requestCdr()
     }
 }
 

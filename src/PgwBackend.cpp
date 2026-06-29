@@ -31,13 +31,16 @@ void PgwBackend::requestStatistics() {
 void PgwBackend::requestSessions() {
     sendRequest(pgw::protocol::Command::GET_SESSIONS);
 }
-
+void PgwBackend::requestCdr() {
+    QJsonObject data;
+    data["limit"] = 100;
+    sendRequest(pgw::protocol::Command::GET_CDR, data);
+}
 void PgwBackend::requestStartSession(const QString& imsi) {
     QJsonObject data;
     data["imsi"] = imsi;
     sendRequest(pgw::protocol::Command::START_SESSION, data);
 }
-
 void PgwBackend::requestStopSession(const QString& imsi) {
     QJsonObject data;
     data["imsi"] = imsi;
@@ -58,6 +61,23 @@ void PgwBackend::responseStatistics(const QJsonObject& data){
     emit statsChanged();
 }
 
+void PgwBackend::responseCdr(const QJsonObject& data){
+    m_recentCdr.clear();
+    m_recentCdr = data["records"].toArray().toVariantList();
+
+    // auto records = data["records"].toArray();
+    // for(const auto& item : records){
+    //     const auto obj = item.toObject();
+    //     CdrRecord record;
+    //     record.timestamp = obj["timestamp"].toString();
+    //     record.imsi = obj["imsi"].toString();
+    //     record.action = obj["action"].toString();
+    //     qDebug() << record.timestamp << " " << record.imsi << " " << record.action;
+    //     m_recentCdr.append(record);
+    // }
+
+    emit cdrChanged();
+}
 
 void PgwBackend::sendRequest(pgw::protocol::Command cmd, const QJsonObject& params){
     auto msg = pgw::TcpSerializer::createJsonMsg(cmd, pgw::protocol::Status::OK, params);
@@ -72,11 +92,12 @@ void PgwBackend::msgHandler(const pgw::protocol::Message &msg){
     }
     switch(msg.header.command){
         case pgw::protocol::Command::GET_STATS:
-            qDebug() << "FSAFASF";
             responseStatistics(pgw::TcpSerializer::getJsonData(msg));
             break;
         // case pgw::protocol::Command::GET_SESSIONS:
-        // case pgw::protocol::Command::GET_CDR:
+         case pgw::protocol::Command::GET_CDR:
+            responseCdr(pgw::TcpSerializer::getJsonData(msg));
+            break;
         // case pgw::protocol::Command::START_SESSION:
         // case pgw::protocol::Command::STOP_SESSION:
         // case pgw::protocol::Command::SHUTDOWN:
